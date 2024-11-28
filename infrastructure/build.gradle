@@ -1,0 +1,83 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.flywaydb:flyway-mysql:9.11.0'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'application' // torna a aplicação java para que possa ser executada esse modulo como um java app
+    id("org.springframework.boot") version "3.3.4"
+    id("io.spring.dependency-management") version "1.1.6"
+    id 'org.flywaydb.flyway' version '9.11.0'
+}
+
+group = 'com.project.admin.catalogo.infrastructure'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+
+//Coloca a build com nome application.jar na pasta Build raiz do projeto
+bootJar {
+    archiveFileName.set('application.jar')
+    destinationDirectory.set(file("${rootProject.buildDir}/libs"))
+}
+
+
+dependencies {
+    implementation(project(":domain"))
+    implementation(project(":application"))
+
+    // https://mvnrepository.com/artifact/mysql/mysql-connector-java
+    implementation 'mysql:mysql-connector-java:8.0.33'
+
+    implementation 'io.springfox:springfox-boot-starter:3.0.0'
+
+
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    // ou a versão que você precisa
+
+    implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
+
+    implementation('org.springframework.boot:spring-boot-starter-web') {
+        exclude module: 'spring-boot-starter-tomcat'
+    }
+
+    implementation('org.springframework.boot:spring-boot-starter-undertow')
+
+    implementation('org.springframework.boot:spring-boot-starter-data-jpa') //lib do spring para facilitar comunicação
+    //do spring para persistir dados, implementando o pattern repository
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.34'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+    testImplementation('org.flywaydb:flyway-core')
+    testImplementation('org.flywaydb:flyway-mysql')
+
+    testImplementation('com.h2database:h2')
+
+
+    testImplementation('org.testcontainers:testcontainers:1.17.6')
+    testImplementation('org.testcontainers:mysql:1.17.6')
+    testImplementation('org.testcontainers:junit-jupiter:1.17.6')
+}
+
+flyway {
+    url = System.getenv('FLYWAY_DB') ?: 'jdbc:mysql://localhost:3306/adm_videos'
+    user = System.getenv('FLYWAY_USER') ?: 'root'
+    password = System.getenv('FLYWAY_PASS') ?: '123456'
+}
+
+test {
+    useJUnitPlatform()
+}
